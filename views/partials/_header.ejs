@@ -12,9 +12,9 @@
       </div>
     </div>
 
-    <% if (username) { %>
+    <% if (cookie.user_id) { %>
     <span class="navbar-text mr-3" >
-      <%= username %>
+      <%= cookie.user_id %>
     </span>
     <form method="POST" action="/logout">
       <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Logout</button>
