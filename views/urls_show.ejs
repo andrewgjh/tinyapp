@@ -10,24 +10,33 @@
 
 <body>
   <%- include("partials/_header") %>
-  <div class="card text-center">
-    <div class="card-header"></div>
-    <div class="card-body">
-      <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-      <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+  <% if (cookie.user_id) { %>
+    <% if (cookie.user_id === creator) { %>
+      <div class="card text-center">
+        <div class="card-header"></div>
+        <div class="card-body">
+          <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+          <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+        </div>
+        <div class="card-footer text-muted"></div>
+      </div>
+      <div class="card text-center">
+      <div class="card-header">
+        <h3 class="card-title">Edit</h3>
+        <form  method="POST" action="/urls/<%= shortURL %> ">
+          <label  for="newURL">New URL:</label>
+          <input  type="text" name="newURL" value="<%= longURL %> ">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
     </div>
-    <div class="card-footer text-muted"></div>
-  </div>
-  <div class="card text-center">
-  <div class="card-header">
-    <h3 class="card-title">Edit</h3>
-    <form  method="POST" action="/urls/<%= shortURL %> ">
-      <label  for="newURL">New URL:</label>
-      <input  type="text" name="newURL" placeholder="<%= longURL %> ">
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-</div>
+      <% } else { %>
+       <h3>You do not have access to this file.</h3>
+     <% } %>
+    
+  <% } else{ %>
+    <h3>Please register/login to see the contents of this link.</h3>
+    <% } %> 
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
@@ -41,3 +50,5 @@
 </body>
 
 </html>
+
+
