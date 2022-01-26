@@ -100,6 +100,9 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 app.get('/urls/new', (req, res) => {
+  if(!req.cookies['user_id']){
+    res.redirect('/login');
+  }
   const templateVars = {
     cookie: req.cookies,
   }
