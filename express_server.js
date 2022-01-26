@@ -40,6 +40,16 @@ const checkForUser = (email, users) => {
   }
   return false;
 };
+const passwordCheck = (email, password, users) => {
+  let registeredUsers = Object.values(users);
+  for (let user of registeredUsers) {
+    if (user.email === email && user.password === password) {
+      return true
+    }
+  }
+  return false;
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -48,13 +58,19 @@ const urlDatabase = {
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
+app.get('/login', (req, res) => {
+  const templateVars = {
+    cookie: req.cookies,
+  }
+  res.render("user_login", templateVars);
+});
 app.post('/register', (req, res) => {
   const {
     email,
     password
   } = req.body;
 
-  if (checkForUser(email, users) || !password) {
+  if (checkForUser(email, users) || !email || !password) {
     res.status(400);
     res.send("Error!");
   }
@@ -104,8 +120,19 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
+  const {
+    email,
+    password
+  } = req.body;
+  if (checkForUser(email, users)) {
+    if (passwordCheck(email, password, users)) {
+      res.cookie('user_id', email);
+      res.redirect("/urls");
+    }
+    res.redirect('/login');
+  } else {
+    res.status(403).send('User cannot be found. Please register an account.');
+  }
 });
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
@@ -114,7 +141,8 @@ app.post("/logout", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
-    username: req.cookies['username'],
+    cookie: req.cookies,
+    username: req.cookies['user_id'],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
   };

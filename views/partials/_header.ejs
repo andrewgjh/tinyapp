@@ -12,6 +12,8 @@
       </div>
     </div>
 
+   
+
     <% if (cookie.user_id) { %>
     <span class="navbar-text mr-3" >
       <%= cookie.user_id %>
@@ -20,10 +22,10 @@
       <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Logout</button>
     </form>
     <% } else { %>
-    <form class="form-inline my-2 my-lg-0" method="POST" action="/login">
-      <input class="form-control mr-sm-2" name="username" placeholder="Username" aria-label="Username">
-      <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Submit</button>
-    </form>
+     <a href="/register" class="btn btn-outline-warning my-2 my-sm-0"> Register </a>
+
+    <a href="/login" class="ml-3 btn btn-outline-warning my-2 my-sm-0"> Login </a>
+
     <% } %>
 
   </nav>
