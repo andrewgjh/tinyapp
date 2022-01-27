@@ -7,7 +7,7 @@ const generateRandomString = (length) => {
   return randomID;
 }
 
-
+const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const app = express();
@@ -43,7 +43,8 @@ const checkForUser = (email, users) => {
 const passwordCheck = (email, password, users) => {
   let registeredUsers = Object.values(users);
   for (let user of registeredUsers) {
-    if (user.email === email && user.password === password) {
+
+    if (user.email === email && (bcrypt.compareSync(password, user.password))) {
       return true
     }
   }
@@ -52,8 +53,8 @@ const passwordCheck = (email, password, users) => {
 
 const urlsForUser = (id, database) => {
   let obj = {};
-  for(let entry in database){
-    if(database[entry].userID === id){
+  for (let entry in database) {
+    if (database[entry].userID === id) {
       obj[entry] = database[entry]
     }
   }
@@ -91,12 +92,11 @@ app.get('/login', (req, res) => {
   res.render("user_login", templateVars);
 });
 app.post('/register', (req, res) => {
-  const {
-    email,
-    password
-  } = req.body;
+  const email = req.body.email;
+  const passwordEntry = req.body.password;
+  const password = bcrypt.hashSync(req.body.password, 10);
 
-  if (checkForUser(email, users) || !email || !password) {
+  if (checkForUser(email, users) || !email || !passwordEntry) {
     res.status(400);
     res.send("Error!");
   }
@@ -145,9 +145,9 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomID}`);
 });
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if(req.cookies["user_id"]!==urlDatabase[req.params.shortURL].userID){
+  if (req.cookies["user_id"] !== urlDatabase[req.params.shortURL].userID) {
     res.status(400).send("Unable to perform this action.");
-  }else{
+  } else {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   }
@@ -185,7 +185,7 @@ app.get("/urls/:shortURL", (req, res) => {
     username: req.cookies['user_id'],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    creator: urlDatabase[req.params.shortURL].userID 
+    creator: urlDatabase[req.params.shortURL].userID
   }
   res.render("urls_show", templateVars);
 });
