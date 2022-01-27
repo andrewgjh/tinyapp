@@ -8,9 +8,11 @@ const {
 const bcrypt = require('bcryptjs');
 var cookieSession = require('cookie-session');
 const express = require('express');
+var methodOverride = require('method-override');
 const app = express();
 const PORT = 8080;
 
+app.use(methodOverride('_method'))
 app.use(cookieSession({
   name: 'session',
   keys: [generateRandomString(8), generateRandomString(8)],
@@ -109,7 +111,7 @@ app.post("/urls", (req, res) => {
   }
   res.status(400).send("Please log in to create new URLs.")
 });
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL/", (req, res) => {
   if (req.session["user_id"] !== urlDatabase[req.params.shortURL].userID) {
     res.status(400).send("Unable to perform this action.");
   } else {
