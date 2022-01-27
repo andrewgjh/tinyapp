@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 var cookieSession = require('cookie-session');
 const express = require('express');
 var methodOverride = require('method-override');
+const e = require('express');
 const app = express();
 const PORT = 8080;
 
@@ -105,11 +106,13 @@ app.post("/urls", (req, res) => {
     let randomID = generateRandomString(6);
     urlDatabase[randomID] = {
       longURL: req.body.longURL,
-      userID: req.session['user_id']
+      userID: req.session['user_id'],
+      created: new Date().toDateString(),
     }
     res.redirect(`/urls/${randomID}`);
+  }else{
+    res.status(400).send("Please log in to create new URLs.")
   }
-  res.status(400).send("Please log in to create new URLs.")
 });
 app.delete("/urls/:shortURL/", (req, res) => {
   if (req.session["user_id"] !== urlDatabase[req.params.shortURL].userID) {
@@ -144,34 +147,28 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  if (!urlDatabase[req.params.shortURL]) {
+  const shortURL = req.params.shortURL;
+  if (!urlDatabase[shortURL]) {
     res.send("Page does not exist");
   };
   const templateVars = {
     cookie: req.session,
     username: req.session['user_id'],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    creator: urlDatabase[req.params.shortURL].userID
+    longURL: urlDatabase[shortURL].longURL,
+    creator: urlDatabase[shortURL].userID
   }
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-
   const shortURL = req.params.shortURL;
   if (shortURLExist(shortURL, urlDatabase)) {
     const longURL = urlDatabase[shortURL].longURL;
     res.redirect(longURL);
+  }else{
+    res.status(400).send("This link doe not exist.");
   }
-  res.status(400).send("This link doe not exist.");
-});
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-app.get('/users.json', (req, res) => {
-  res.json(users);
 });
 app.get('/*', (req, res) => {
   res.redirect('/urls');
